@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "list.h"
 #define TETA 0.5
-#define NUMBER_OF_CORES 4
+#define NUMBER_OF_CORES 3
 
 struct core{
     struct Task *task;
@@ -67,6 +67,7 @@ void update_cores(){
     for(int i=0; i<number_of_cores; i++){
         if(cores[i].busy) {
             if ( time - cores[i].task->s >= cores[i].task->c ) {//execution finished
+                printf("--- time : %d -----------\n",time);
                 printf("Task %d finished executing on core %d \n", cores[i].task->id, i);
                 cores[i].task = NULL;
                 cores[i].busy = false;
@@ -107,12 +108,16 @@ int find_idle_core(){
 }
 
 int min_execution_time() {
-    int min = time - cores[0].task->s;
-    for(int i=0; i<number_of_cores; i++) {
-
-        if (min < (time - cores[i].task->s ))
-            min = time - cores[i].task->s;
+    int min = 0;
+    if(cores[0].task)
+        min = time - cores[0].task->s;
+    for(int i=1; i<number_of_cores; i++) {
+        if(cores[i].task) {
+            if (min > (time - cores[i].task->s))
+                min = time - cores[i].task->s;
+        }
     }
+    return min;
 }
 //
 //int min_execution_time(){
@@ -125,27 +130,15 @@ int min_execution_time() {
 //    return min;
 //}
 
-void end(){
-    //check cores
-    int c,i;
-    int min;
-
-    if (cores[0].busy) min = time - cores[0].task->s;
-    for(i=0; i<number_of_cores; i++){
-        if(cores[i].busy) {
-            if (min < (time - cores[i].task->s)) {
-                min = time - cores[i].task->s;
-                c = i;
-            }
-        }
+void finish(){
+    int inc = min_execution_time();
+    if(inc == 0 )return;
+    else {
+        time += inc;
+        update_cores();
     }
-    time += min;
-    cores[c].busy = false;
-    cores[c].task = NULL;
-    cores[c].faulty = false;
-    printf("--- time : %d ------\n", time);
-//    printf("core %d finished executing Task %d\n", c, cores[c].Task->id);
 }
+
 void print_list(){
     struct Node * l=list;
     printf("list:\n");
@@ -241,6 +234,7 @@ int main() {
                 }
 
             } else{//all cores are busy
+                printf("--- time : %d -----------\n", time);
                 printf("all cores are busy\n");
                 inc = min_execution_time();
                 time += inc;
@@ -255,11 +249,15 @@ int main() {
 //            end();
 //    }
 
-    for(int a=0; a < number_of_cores; a++){
-        //time += 1;
-        printf("--- time : %d -----------\n", time);
-        update_cores();
-    }
+    finish();
+
+
+
+//    for(int a=0; a < number_of_cores; a++){
+//
+//        printf("--- time : %d -----------\n", time);
+//        update_cores();
+//    }
 
     printf("feasibility: ");
     if(feasibility) printf("true");
