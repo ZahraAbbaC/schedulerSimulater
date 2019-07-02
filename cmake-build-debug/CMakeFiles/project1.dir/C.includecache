@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/zahra/Uni/OS/project1/list.c
+stdio.h
+-
+stdbool.h
+-
+malloc.h
+-
+
+/home/zahra/Uni/OS/project1/list.h
+
+/home/zahra/Uni/OS/project1/main.c
+stdio.h
+-
+stdbool.h
+-
+stdlib.h
+-
+list.h
+/home/zahra/Uni/OS/project1/list.h
+
