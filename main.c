@@ -120,18 +120,8 @@ int min_execution_time() {//finds the minimum remained execution time
     }
     return min;
 }
-//
-//int min_execution_time(){
-//    int min = cores[0].Task->c;
-//    for(int i=0; i<number_of_cores; i++){
-//        if (cores[i].busy) {
-//            if (min > cores[i].Task->c) min = cores[i].Task->c;min = time = cores[i].Task->s;
-//        }
-//    }
-//    return min;
-//}
 
-int f() {
+int find_busy_core() {
     for (int i = 0; i < number_of_cores; i++) {
         if (cores[i].busy) return i;
     }
@@ -159,7 +149,6 @@ void print_ready(){
     for(;f;f=f->next)printf("id: %d, r: %d, ad: %d\n",f->task.id, f->task.r, f->task.ad);
 }
 
-//TODO:akhare kar time bayad beshe be andaze i ke akharin Task run she
 int main() {
 
     int inc = 1;
@@ -254,20 +243,8 @@ int main() {
 
     }
 
-//    for(int a=0; a < number_of_cores; a++) {
-//        if (cores[a].busy)
-//            end();
-//    }
-    while(f()!=-1)//while there exists a busy core
+    while(find_busy_core()!=-1)//while there exists a busy core
         finish();
-
-
-
-//    for(int a=0; a < number_of_cores; a++){
-//
-//        printf("--- time : %d -----------\n", time);
-//        update_cores();
-//    }
 
     printf("feasibility: ");
     if(feasibility) printf("true");
