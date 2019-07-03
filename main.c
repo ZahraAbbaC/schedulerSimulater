@@ -6,7 +6,7 @@
 #define NUMBER_OF_CORES 3
 
 struct core{
-    struct Task *task;
+    struct Task task;
     bool busy;
     bool faulty;
 };
@@ -66,10 +66,10 @@ struct Node * update_ready_list(){
 void update_cores(){
     for(int i=0; i<number_of_cores; i++){
         if(cores[i].busy) {
-            if ( time - cores[i].task->s >= cores[i].task->c ) {//execution finished
+            if ( time - cores[i].task.s >= cores[i].task.c ) {//execution finished
                 printf("--- time : %d -----------\n",time);
-                printf("Task %d finished executing on core %d \n", cores[i].task->id, i);
-                cores[i].task = NULL;
+                printf("Task %d finished executing on core %d \n", cores[i].task.id, i);
+                //cores[i].task = NULL;
                 cores[i].busy = false;
                 cores[i].faulty = false;
             }
@@ -81,19 +81,18 @@ void update_cores(){
 bool core_fault (int core){
     int r =rand()%number_of_cores;
     if (r == core) return true;
-    if (cores[core].busy) cores[core].task->success=false;
+    if (cores[core].busy) cores[core].task.success=false;
     return false;
 }
 
-bool execute(struct Task *task,int core){
+bool execute(struct Task task,int core){
     cores[core].task = task;
-
     cores[core].busy = true;
     if(core_fault(core)) {
         cores[core].faulty = true;
         return false;//add to ready list and inc execution_count
     }
-    task->success = true;
+    task.success = true;
     return true;
 }
 
@@ -109,13 +108,13 @@ int find_idle_core(){
 
 int min_execution_time() {//finds the minimum remained execution time
     int min = 0;
-    if(cores[0].task){
-        min = cores[0].task->c - (time - cores[0].task->s);//execution time - progress
+    if(cores[0].busy){
+        min = cores[0].task.c - (time - cores[0].task.s);//execution time - progress
     }
     for(int i=1; i<number_of_cores; i++) {
-        if(cores[i].task) {
-            if (min > (cores[i].task->c - (time - cores[i].task->s)))
-                min = (cores[i].task->c - (time - cores[i].task->s));
+        if(cores[i].busy) {
+            if (min > (cores[i].task.c - (time - cores[i].task.s)))
+                min = (cores[i].task.c - (time - cores[i].task.s));
         }
     }
     return min;
@@ -163,6 +162,7 @@ int main() {
     bool feasibility = true;
     float Task_execution_time;
 
+//TODO:fek konam bayad or bashe na and
     while(list /* && list->task!=NULL*/ && executed_Tasks<number_of_Tasks) {/*list is not empty and total executed Tasks!=number of total Tasks*/
         time += inc;
         printf("-----time: %d -----------\n",time);
@@ -186,7 +186,7 @@ int main() {
                     else {
                         if (t.u < TETA) {//not critical - needs one core
                             printf("(not critical)\n");
-                            if (!execute(&t, core)) {//the core is faulty - checkpointing
+                            if (!execute(t, core)) {//the core is faulty - checkpointing
                                 printf("checkpointing\n");
                                 update_tc(&t);
                             }
@@ -197,7 +197,7 @@ int main() {
                         } else {//critical
                             printf("(critical)\n");
                             ready_list = rmv(ready_list,t);
-                            execute(&t, core);
+                            execute(t, core);
                             executed_Tasks+=1;
                             printf("start execution on core %d\n", core);
                             t.s = time;
@@ -205,7 +205,7 @@ int main() {
                             core2 = find_idle_core();
                             if (core2 != -1){//there exists another idle core
                                 printf("duplicate on core %d\n", core2);
-                                execute(&t, core2);
+                                execute(t, core2);
                                 printf("start execution on core %d\n", core2);
                                 t.s = time;
                             } else {
@@ -225,7 +225,7 @@ int main() {
                         printf("(second try)\n");
                         if (time + t.c < t.ad) {
                             printf("deadline expired");
-                            execute(&t, core);
+                            execute(t, core);
                             //executed_Tasks+=1;
                             t.s = time;
                             if (!t.success){feasibility = false;printf("both primary and backup copy of the critical Task are faulty\n");}
