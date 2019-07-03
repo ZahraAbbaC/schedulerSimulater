@@ -86,6 +86,7 @@ bool core_fault (int core){
 }
 
 bool execute(struct Task task,int core){
+    task.s = time;
     cores[core].task = task;
     cores[core].busy = true;
     if(core_fault(core)) {
@@ -129,6 +130,14 @@ int min_execution_time() {//finds the minimum remained execution time
 //    }
 //    return min;
 //}
+
+int f() {
+    for (int i = 0; i < number_of_cores; i++) {
+        if (cores[i].busy) return i;
+    }
+    return -1;
+}
+
 
 void finish(){
     int inc = min_execution_time();
@@ -249,8 +258,8 @@ int main() {
 //        if (cores[a].busy)
 //            end();
 //    }
-
-    finish();
+    while(f()!=-1)//while there exists a busy core
+        finish();
 
 
 
