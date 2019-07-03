@@ -107,14 +107,15 @@ int find_idle_core(){
     return -1;
 }
 
-int min_execution_time() {
+int min_execution_time() {//finds the minimum remained execution time
     int min = 0;
-    if(cores[0].task)
-        min = time - cores[0].task->s;
+    if(cores[0].task){
+        min = cores[0].task->c - (time - cores[0].task->s);//execution time - progress
+    }
     for(int i=1; i<number_of_cores; i++) {
         if(cores[i].task) {
-            if (min > (time - cores[i].task->s))
-                min = time - cores[i].task->s;
+            if (min > (cores[i].task->c - (time - cores[i].task->s)))
+                min = (cores[i].task->c - (time - cores[i].task->s));
         }
     }
     return min;
@@ -142,12 +143,12 @@ void finish(){
 void print_list(){
     struct Node * l=list;
     printf("list:\n");
-    for(;l;l=l->next)printf("r: %d, ad: %d\n",l->task.r, l->task.ad);
+    for(;l;l=l->next)printf("id: %d, r: %d, ad: %d\n",l->task.id, l->task.r, l->task.ad);
 }
 void print_ready(){
     struct Node * f=ready_list;
     printf("readylist:\n");
-    for(;f;f=f->next)printf("r: %d, ad: %d\n",f->task.r, f->task.ad);
+    for(;f;f=f->next)printf("id: %d, r: %d, ad: %d\n",f->task.id, f->task.r, f->task.ad);
 }
 
 //TODO:akhare kar time bayad beshe be andaze i ke akharin Task run she
