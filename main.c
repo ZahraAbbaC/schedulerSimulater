@@ -81,7 +81,10 @@ void update_cores(){
 bool core_fault (int core){
     int r =rand()%number_of_cores;
     if (r == core) return true;
-    if (cores[core].busy) cores[core].task.success=false;
+    if (cores[core].busy){
+        cores[core].faulty = true;
+        cores[core].task.success = false;
+    }
     return false;
 }
 
